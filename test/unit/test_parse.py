@@ -116,3 +116,11 @@ class TestParse(TestCase):
                 ]
             }
         )
+
+    def test_parse_escaped_interpolation(self):
+        """Terraform '$${' is a literal escaped interpolation, not '${'."""
+        result = hcl2.loads('locals { escaped = "$${not_interpolation}" }')
+        self.assertEqual(result["locals"][0]["escaped"], ["$${not_interpolation}"])
+
+        mixed = hcl2.loads('locals { mixed = "hello-$${world}-${var.name}" }')
+        self.assertEqual(mixed["locals"][0]["mixed"], ["hello-$${world}-${var.name}"])
